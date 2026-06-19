@@ -1,0 +1,85 @@
+### --- ARCHIVOS DEL SISTEMA OPERATIVO --- ###
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+
+### --- ENTORNOS DE DESARROLLO (IDEs) --- ###
+
+# Eclipse
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders/
+.externalToolBuilders/
+*.launch
+*.pydevproject
+.cproject
+.autotools
+.factorypath
+.buildpath
+.target
+.tern-project
+.texlipse
+.springBeans
+.apt_generated/
+.apt_generated_test/
+.cache-main
+.scala_dependencies
+.worksheet
+.project
+.sts4-cache/
+
+# IntelliJ (Bloqueo total para independencia absoluta)
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+cmake-build-*/
+.idea_modules/
+atlassian-ide-plugin.xml
+com_crashlytics_export_strings.xml
+crashlytics.properties
+crashlytics-build.properties
+fabric.properties
+
+# VS Code
+.vscode/
+.history/
+*.code-workspace
+
+### --- HERRAMIENTAS DE CONSTRUCCIÓN (MAVEN & GRADLE) --- ###
+target/
+build/
+.gradle/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+gen/
+*.class
+
+# Opcional: Descomentá la siguiente línea si NO querés subir el Maven Wrapper al repositorio
+#.mvn/wrapper/

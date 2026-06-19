@@ -1,0 +1,101 @@
+grammar Gramatica;
+
+// Reglas
+
+program: PROGRAM ID BRACKET_OPEN
+            sentence*
+        BRACKET_CLOSE;
+
+sentence: println
+        | conditional
+        | varDecl
+        | varAssign;
+
+println: PRINTLN expression SEMICOLON;
+
+conditional: IF PAR_OPEN expression PAR_CLOSE   BRACKET_OPEN
+                sentence*
+            BRACKET_CLOSE
+            ELSE BRACKET_OPEN
+                sentence*
+            BRACKET_CLOSE;
+
+varDecl: VAR ID SEMICOLON;
+varAssign: ID ASSIGN expression SEMICOLON;
+
+expression: andExpr
+            ( OR andExpr )*;
+
+andExpr: comparisonExpr
+            ( AND comparisonExpr )*;
+
+comparisonExpr: arithmeticExpr
+                ( EQ arithmeticExpr
+                | GT arithmeticExpr
+                | LT  arithmeticExpr
+                | GEQ arithmeticExpr
+                | LEQ arithmeticExpr
+                | NEQ arithmeticExpr )*;
+
+arithmeticExpr: multiplicativeExpr
+                (PLUS multiplicativeExpr
+                | MINUS multiplicativeExpr )*;
+
+multiplicativeExpr: unaryExpr
+                    ( MULT unaryExpr
+                    | DIV  unaryExpr )*;
+
+unaryExpr: NOT unaryExpr
+            | MINUS unaryExpr
+            | term;
+
+term: INT
+        | FLOAT
+        | BOOLEAN
+        | STRING
+        | ID
+        | PAR_OPEN expression PAR_CLOSE;
+
+// TOKENS
+PROGRAM: 'program';
+VAR: 'var';
+PRINTLN: 'println';
+
+IF: 'if';
+ELSE: 'else';
+
+DO: 'do';
+WHILE: 'while';
+
+PLUS: '+';
+MINUS: '-';
+MULT: '*';
+DIV: '/';
+
+AND: '&&';
+OR: '||';
+NOT: '!';
+
+GT: '>';
+LT: '<';
+GEQ: '>=';
+LEQ: '<=';
+EQ: '==';
+NEQ: '!=';
+
+ASSIGN: '=';
+
+BRACKET_OPEN: '{';
+BRACKET_CLOSE: '}';
+
+PAR_OPEN: '(';
+PAR_CLOSE: ')';
+SEMICOLON: ';';
+
+BOOLEAN: 'true' | 'false';
+ID: [a-zA-Z][a-zA-Z0-9_]*;
+INT: [0-9]+;
+FLOAT: [0-9]+ '.' [0-9]* | '.' [0-9]+;
+STRING: '"' (~["\\\r\n'] | '\\' .)* '"';
+
+WS: [ \t\r\n]+ -> skip;
