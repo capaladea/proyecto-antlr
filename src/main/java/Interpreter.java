@@ -39,12 +39,104 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
 
     @Override
     public Object visitComparisonExpr(GramaticaParser.ComparisonExprContext ctx) {
-        return visit(ctx.arithmeticExpr(0));
+        Object resultado = visit(ctx.arithmeticExpr(0));
+
+        if (ctx.arithmeticExpr().size() > 1) {
+            for (int i = 1; i < ctx.arithmeticExpr().size(); i++) {
+                Object operandoDerecho = visit(ctx.arithmeticExpr(i));
+                String operador = ctx.getChild(i * 2 - 1).getText();
+
+                // Detectamos si estamos comparando números y si alguno involucra un Double/Float
+                boolean esFloat = (resultado instanceof Double || operandoDerecho instanceof Double);
+                boolean sonNumeros = (resultado instanceof Number && operandoDerecho instanceof Number);
+
+                switch (operador) {
+                    case "<":
+                        if (esFloat) {
+                            resultado = ((Number) resultado).doubleValue() < ((Number) operandoDerecho).doubleValue();
+                        } else {
+                            resultado = (Integer) resultado < (Integer) operandoDerecho;
+                        }
+                        break;
+                    case "<=":
+                        if (esFloat) {
+                            resultado = ((Number) resultado).doubleValue() <= ((Number) operandoDerecho).doubleValue();
+                        } else {
+                            resultado = (Integer) resultado <= (Integer) operandoDerecho;
+                        }
+                        break;
+                    case ">":
+                        if (esFloat) {
+                            resultado = ((Number) resultado).doubleValue() > ((Number) operandoDerecho).doubleValue();
+                        } else {
+                            resultado = (Integer) resultado > (Integer) operandoDerecho;
+                        }
+                        break;
+                    case ">=":
+                        if (esFloat) {
+                            resultado = ((Number) resultado).doubleValue() >= ((Number) operandoDerecho).doubleValue();
+                        } else {
+                            resultado = (Integer) resultado >= (Integer) operandoDerecho;
+                        }
+                        break;
+                    case "==":
+                        if (sonNumeros) {
+                            resultado = ((Number) resultado).doubleValue() == ((Number) operandoDerecho).doubleValue();
+                        } else {
+                            resultado = resultado.equals(operandoDerecho);
+                        }
+                        break;
+                    case "!=":
+                        if (sonNumeros) {
+                            resultado = ((Number) resultado).doubleValue() != ((Number) operandoDerecho).doubleValue();
+                        } else {
+                            resultado = !resultado.equals(operandoDerecho);
+                        }
+                        break;
+                }
+            }
+        }
+
+        return resultado;
     }
 
     @Override
     public Object visitArithmeticExpr(GramaticaParser.ArithmeticExprContext ctx) {
-        return visit(ctx.multiplicativeExpr(0));
+        // 1. Obtenemos el valor real del primer término
+        Object resultado = visit(ctx.multiplicativeExpr(0));
+
+        // 2. Si hay más términos, iteramos sobre ellos
+        if (ctx.multiplicativeExpr().size() > 1) {
+            for (int i = 1; i < ctx.multiplicativeExpr().size(); i++) {
+                Object operandoDerecho = visit(ctx.multiplicativeExpr(i));
+
+                // Obtenemos el token del operador (+ o -)
+                String operador = ctx.getChild(i * 2 - 1).getText();
+
+                // Verificamos si alguno de los dos lados es de tipo Double (Float de nuestro lenguaje)
+                boolean esFloat = (resultado instanceof Double || operandoDerecho instanceof Double);
+
+                if ("+".equals(operador)) {
+                    if (esFloat) {
+                        double a = (resultado instanceof Integer) ? (Integer) resultado : (Double) resultado;
+                        double b = (operandoDerecho instanceof Integer) ? (Integer) operandoDerecho : (Double) operandoDerecho;
+                        resultado = a + b;
+                    } else {
+                        resultado = (Integer) resultado + (Integer) operandoDerecho;
+                    }
+                } else if ("-".equals(operador)) {
+                    if (esFloat) {
+                        double a = (resultado instanceof Integer) ? (Integer) resultado : (Double) resultado;
+                        double b = (operandoDerecho instanceof Integer) ? (Integer) operandoDerecho : (Double) operandoDerecho;
+                        resultado = a - b;
+                    } else {
+                        resultado = (Integer) resultado - (Integer) operandoDerecho;
+                    }
+                }
+            }
+        }
+
+        return resultado;
     }
 
     @Override

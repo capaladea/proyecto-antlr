@@ -40,12 +40,66 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
 
     @Override
     public String visitComparisonExpr(GramaticaParser.ComparisonExprContext ctx) {
-        return visit(ctx.arithmeticExpr(0));
+        // 1. Evaluamos el tipo del lado izquierdo
+        String tipoIzquierdo = visit(ctx.arithmeticExpr(0));
+
+        // 2. Si hay más de un hijo, significa que hay un operador de comparación
+        if (ctx.arithmeticExpr().size() > 1) {
+            for (int i = 1; i < ctx.arithmeticExpr().size(); i++) {
+                String tipoDerecho = visit(ctx.arithmeticExpr(i));
+
+                // Obtenemos el texto del operador (<, >, ==, etc.)
+                String operador = ctx.getChild(i * 2 - 1).getText();
+
+                if ("==".equals(operador) || "!=".equals(operador)) {
+                    // Para igualdad/desigualdad, permitimos que sean iguales, o que ambos sean numéricos
+                    boolean ambosNumericos = ("INT".equals(tipoIzquierdo) || "FLOAT".equals(tipoIzquierdo)) &&
+                            ("INT".equals(tipoDerecho) || "FLOAT".equals(tipoDerecho));
+
+                    if (!tipoIzquierdo.equals(tipoDerecho) && !ambosNumericos) {
+                        throw new RuntimeException("Error Semántico: No se puede comparar la igualdad entre los tipos " + tipoIzquierdo + " y " + tipoDerecho);
+                    }
+                } else {
+                    // Para <, <=, >, >= obligatoriamente deben ser numéricos
+                    if (!("INT".equals(tipoIzquierdo) || "FLOAT".equals(tipoIzquierdo)) ||
+                            !("INT".equals(tipoDerecho) || "FLOAT".equals(tipoDerecho))) {
+                        throw new RuntimeException("Error Semántico: El operador '" + operador + "' solo se puede aplicar a tipos numéricos.");
+                    }
+                }
+            }
+            // Toda comparación válida produce un Booleano hacia arriba
+            return "BOOLEAN";
+        }
+
+        // Si no había operador, sube el tipo original sin alterarse
+        return tipoIzquierdo;
     }
 
     @Override
     public String visitArithmeticExpr(GramaticaParser.ArithmeticExprContext ctx) {
-        return visit(ctx.multiplicativeExpr(0));
+        // 1. Empezamos evaluando el tipo del primer hijo (el de la izquierda)
+        String tipoIzquierdo = visit(ctx.multiplicativeExpr(0));
+
+        // 2. Si hay más de un hijo multiplicativeExpr, hay operaciones (+ o -)
+        if (ctx.multiplicativeExpr().size() > 1) {
+            for (int i = 1; i < ctx.multiplicativeExpr().size(); i++) {
+                String tipoDerecho = visit(ctx.multiplicativeExpr(i));
+
+                // Validación: Ambos lados deben ser obligatoriamente numéricos
+                if (!("INT".equals(tipoIzquierdo) || "FLOAT".equals(tipoIzquierdo)) ||
+                        !("INT".equals(tipoDerecho) || "FLOAT".equals(tipoDerecho))) {
+                    throw new RuntimeException("Error Semántico: No se pueden realizar operaciones aritméticas con tipos no numéricos.");
+                }
+
+                // Regla de promoción: Si cualquiera es FLOAT, el resultado es FLOAT
+                if ("FLOAT".equals(tipoIzquierdo) || "FLOAT".equals(tipoDerecho)) {
+                    tipoIzquierdo = "FLOAT";
+                } else {
+                    tipoIzquierdo = "INT";
+                }
+            }
+        }
+        return tipoIzquierdo;
     }
 
     @Override
