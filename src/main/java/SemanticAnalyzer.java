@@ -30,14 +30,49 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
 
     @Override
     public String visitExpression(GramaticaParser.ExpressionContext ctx) {
-        return visit(ctx.andExpr(0));
+        // 1. Evaluamos el tipo del primer hijo (el bloque de los ANDs)
+        String tipoIzquierdo = visit(ctx.andExpr(0));
+
+        // 2. Si hay más de un hijo andExpr, significa que se usó el operador "||"
+        if (ctx.andExpr().size() > 1) {
+            for (int i = 1; i < ctx.andExpr().size(); i++) {
+                String tipoDerecho = visit(ctx.andExpr(i));
+
+                // Validación estricta: ambos lados deben ser BOOLEAN
+                if (!"BOOLEAN".equals(tipoIzquierdo) || !"BOOLEAN".equals(tipoDerecho)) {
+                    throw new RuntimeException("Error Semántico: El operador lógico '||' solo se puede aplicar a expresiones booleanas.");
+                }
+            }
+            // Si pasa la auditoría, el resultado final que sube es BOOLEAN
+            return "BOOLEAN";
+        }
+
+        // Si no había operador ||, sube el tipo original intacto (INT, FLOAT, etc.)
+        return tipoIzquierdo;
     }
 
     @Override
     public String visitAndExpr(GramaticaParser.AndExprContext ctx) {
-        return visit(ctx.comparisonExpr(0));
-    }
+        // 1. Evaluamos el tipo del primer hijo (izquierdo)
+        String tipoIzquierdo = visit(ctx.comparisonExpr(0));
 
+        // 2. Si hay más de un hijo comparisonExpr, significa que hay operadores "&&"
+        if (ctx.comparisonExpr().size() > 1) {
+            for (int i = 1; i < ctx.comparisonExpr().size(); i++) {
+                String tipoDerecho = visit(ctx.comparisonExpr(i));
+
+                // Validación estricta: ambos lados deben ser BOOLEAN
+                if (!"BOOLEAN".equals(tipoIzquierdo) || !"BOOLEAN".equals(tipoDerecho)) {
+                    throw new RuntimeException("Error Semántico: El operador lógico '&&' solo se puede aplicar a expresiones booleanas.");
+                }
+            }
+            // Si pasa la validación, el resultado de la cadena de ANDs es BOOLEAN
+            return "BOOLEAN";
+        }
+
+        // Si no había operador &&, sube el tipo original (que podría ser INT, FLOAT, etc.)
+        return tipoIzquierdo;
+    }
     @Override
     public String visitComparisonExpr(GramaticaParser.ComparisonExprContext ctx) {
         // 1. Evaluamos el tipo del lado izquierdo

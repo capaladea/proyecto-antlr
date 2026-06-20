@@ -29,12 +29,38 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
 
     @Override
     public Object visitExpression(GramaticaParser.ExpressionContext ctx) {
-        return visit(ctx.andExpr(0));
+        // 1. Obtenemos el valor real del primer componente
+        Object resultado = visit(ctx.andExpr(0));
+
+        // 2. Si hay operadores "||", los evaluamos iterativamente
+        if (ctx.andExpr().size() > 1) {
+            for (int i = 1; i < ctx.andExpr().size(); i++) {
+                Object operandoDerecho = visit(ctx.andExpr(i));
+
+                // Operación lógica OR real de Java
+                resultado = (Boolean) resultado || (Boolean) operandoDerecho;
+            }
+        }
+
+        return resultado;
     }
 
     @Override
     public Object visitAndExpr(GramaticaParser.AndExprContext ctx) {
-        return visit(ctx.comparisonExpr(0));
+        // 1. Obtenemos el valor real del primer componente
+        Object resultado = visit(ctx.comparisonExpr(0));
+
+        // 2. Si hay operadores "&&", evaluamos iterativamente
+        if (ctx.comparisonExpr().size() > 1) {
+            for (int i = 1; i < ctx.comparisonExpr().size(); i++) {
+                Object operandoDerecho = visit(ctx.comparisonExpr(i));
+
+                // Operación lógica AND real de Java
+                resultado = (Boolean) resultado && (Boolean) operandoDerecho;
+            }
+        }
+
+        return resultado;
     }
 
     @Override

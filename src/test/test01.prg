@@ -1,6 +1,5 @@
-program TestComparaciones {
-    println 5 > 3;
-    println 10 + 2 == 4 * 3;
-    println "hola" == "hola";
-    println 3.5 <= 2;
+program TestExpresionCompleta {
+    println ("(false || true)");
+    println (5 > 10) || (((4 * 2) == 8) && true);
+    println "hola" == "chau" || !false;
 }
