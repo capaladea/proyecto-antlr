@@ -1,7 +1,8 @@
 
 public class Interpreter extends GramaticaBaseVisitor<Object>{
 
-    private final SymbolTable symbolTable = new SymbolTable();
+    // tabla para guardar las variables y su valor
+    private final SymbolTable memoria = new SymbolTable();
 
     @Override
     public Object visitProgram(GramaticaParser.ProgramContext ctx) {
@@ -17,6 +18,14 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         if (ctx.println() != null) {
             return visit(ctx.println());
         }
+        // Si es una declaración de variable, reservamos memoria
+        if (ctx.varDecl() != null) {
+            return visit(ctx.varDecl());
+        }
+        // Si es una asignación de variable, la ejecutamos
+        if (ctx.varAssign() != null) {
+            return visit(ctx.varAssign());
+        }
         return null;
     }
 
@@ -24,6 +33,30 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
     public Object visitPrintln(GramaticaParser.PrintlnContext ctx) {
         Object valor = visit(ctx.expression()); // Resolvemos la matemática
         System.out.println("Resultado: " + valor); // ¡Lo mostramos!
+        return null;
+    }
+
+    @Override
+    public Object visitVarDecl(GramaticaParser.VarDeclContext ctx) {
+        String nombreVar = ctx.ID().getText();
+
+        // Inicializamos en null dentro de la memoria real
+        memoria.declare(nombreVar, null);
+
+        return null;
+    }
+
+    @Override
+    public Object visitVarAssign(GramaticaParser.VarAssignContext ctx) {
+        String nombreVar = ctx.ID().getText();
+
+        // Evaluamos la expresión de la derecha para obtener el valor real (Integer, Boolean, etc.)
+        Object valorReal = visit(ctx.expression());
+
+        // Guardamos el valor real en tu memoria reemplazando el null inicial
+        // El metodo assign ya tira error si la variable no existe en tiempo de ejecución
+        memoria.assign(nombreVar, valorReal);
+
         return null;
     }
 
@@ -260,7 +293,7 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         // Retornar el valor actual de la variable desde la tabla de símbolos
         if (ctx.ID() != null) {
             String varName = ctx.ID().getText();
-            return symbolTable.get(varName);
+            return memoria.get(varName);
         }
 
         // Si es una expresión entre paréntesis, resolverla recursivamente

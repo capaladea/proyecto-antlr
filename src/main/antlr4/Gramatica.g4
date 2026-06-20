@@ -7,7 +7,7 @@ program: PROGRAM ID BRACKET_OPEN
 
 sentence: println
         | conditional
-        | doWhile
+        | doWhile // pedido or la catedra
         | varDecl
         | varAssign;
 
@@ -20,10 +20,12 @@ conditional: IF PAR_OPEN expression PAR_CLOSE   BRACKET_OPEN
                 sentence*
             BRACKET_CLOSE;
 
+//*******************************
 doWhile: DO BRACKET_OPEN
             sentence*
             BRACKET_CLOSE
             WHILE PAR_OPEN expression PAR_CLOSE SEMICOLON;
+//*******************************
 
 varDecl: VAR ID SEMICOLON;
 varAssign: ID ASSIGN expression SEMICOLON;

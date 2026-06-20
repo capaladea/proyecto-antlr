@@ -7,10 +7,11 @@ public class Main {
         try {   // Cargar el archivo
                 String input = "src/test/test01.prg";
 
+                // Análisis léxico
                 GramaticaLexer lexer = new GramaticaLexer(CharStreams.fromFileName(input));
 
                 // Forzar al LEXER a lanzar excepción ante errores de tokens: falta un ';' o un '(' etc.
-                lexer.removeErrorListeners();
+                lexer.removeErrorListeners(); // Limpiamos los mensajes feos por defecto si existen
                 lexer.addErrorListener(new BaseErrorListener() {
                     @Override
                      public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
@@ -20,22 +21,23 @@ public class Main {
                 });
 
                 CommonTokenStream tokens = new CommonTokenStream(lexer);
+                // Análisis sintáctico
                 GramaticaParser parser = new GramaticaParser(tokens);
 
                 // Forzar al PARSER a lanzar excepción ante errores de sintaxis
-                parser.removeErrorListeners(); // Limpiamos los mensajes feos por defecto
+                parser.removeErrorListeners(); // Limpiamos los mensajes feos por defecto si existen
                 parser.setErrorHandler(new BailErrorStrategy());
 
                 // Parsear (Genera el árbol)
                 ParseTree tree = parser.program();
 
-                // Fase Semántica (Auditoría)
+                // Fase Semántica (Auditoría), análisis semántico
                 System.out.println("--- Iniciando Análisis Semántico ---");
                 SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
                 semanticAnalyzer.visit(tree);
                 System.out.println("--- ¡Análisis semántico exitoso! ---");
 
-                // Fase de Ejecución (Acción)
+                // Fase de Ejecución (el interprete)
                 System.out.println("--- Iniciando Ejecución ---");
                 Interpreter interpreter = new Interpreter();
                 interpreter.visit(tree);

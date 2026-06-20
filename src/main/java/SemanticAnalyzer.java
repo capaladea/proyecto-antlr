@@ -2,7 +2,7 @@
 
 public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
 
-    private final SymbolTable symbolTable = new SymbolTable();
+    private final SymbolTable tablaSimbolos = new SymbolTable();
 
     @Override
     public String visitProgram(GramaticaParser.ProgramContext ctx) {
@@ -19,6 +19,14 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         if (ctx.println() != null) {
             return visit(ctx.println());
         }
+        // Si la sentencia es una declaracion de variable, la visitamos
+        if (ctx.varDecl() != null) {
+            return visit(ctx.varDecl());
+        }
+        // Si es una asignación de variable, la auditamos
+        if (ctx.varAssign() != null) {
+            return visit(ctx.varAssign());
+        }
         return null;
     }
 
@@ -26,6 +34,45 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
     public String visitPrintln(GramaticaParser.PrintlnContext ctx) {
         visit(ctx.expression()); // Validamos la expresión matemática de adentro
         return null;
+    }
+
+    @Override
+    public String visitVarDecl(GramaticaParser.VarDeclContext ctx) {
+        String nombreVar = ctx.ID().getText();
+
+        // Tu tablaSimbolos se encarga de tirar la excepción si ya existe.
+        // es UNDEF porque aun no tiene tipo
+        tablaSimbolos.declare(nombreVar, "UNDEF");
+
+        return null;
+    }
+
+    @Override
+    public String visitVarAssign(GramaticaParser.VarAssignContext ctx) {
+        String nombreVar = ctx.ID().getText();
+
+        // Verificar si la variable fue declarada
+        if (!tablaSimbolos.exists(nombreVar)) {
+            throw new RuntimeException("Error Semántico: La variable '" + nombreVar + "' no ha sido declarada.");
+        }
+
+        // Obtener el tipo actual de la variable en la tabla y el tipo de la expresión derecha
+        String tipoActual = (String) tablaSimbolos.get(nombreVar);
+        String tipoExpresion = visit(ctx.expression()); // Analiza la jerarquia de expresiones
+
+        // Aplicar la regla de tipado dinámico-fijo
+        if ("UNDEF".equals(tipoActual)) {
+            // Es la primera asignación: definimos el tipo de la variable para siempre
+            tablaSimbolos.assign(nombreVar, tipoExpresion);
+        } else {
+            // Ya tenía tipo: validamos que coincidan estrictamente
+            if (!tipoActual.equals(tipoExpresion)) {
+                throw new RuntimeException("Error Semántico: No se puede asignar un valor de tipo " + tipoExpresion +
+                        " a la variable '" + nombreVar + "' que es de tipo " + tipoActual + ".");
+            }
+        }
+
+        return null; // Es una acción, no devuelve tipo hacia arriba
     }
 
     @Override
@@ -221,8 +268,8 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         if (ctx.ID() != null) {
             String varName = ctx.ID().getText();
             // Retorna el tipo guardado en la tabla (ej: "INT")
-            // Si no existe, la misma SymbolTable lanzará la excepción
-            return (String) symbolTable.get(varName);
+            // Si no existe, la misma tablaSimbolos lanzará la excepción
+            return (String) tablaSimbolos.get(varName);
         }
 
         // Si es una expresión entre paréntesis (PAR_OPEN expression PAR_CLOSE)
