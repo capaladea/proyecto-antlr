@@ -6,5 +6,5 @@ program TestAsignacion {
     condicion = x > 10 && true;
 
     println (x + 100);
-    println (condicion);
+    println ("condicion");
 }

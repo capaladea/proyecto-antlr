@@ -32,7 +32,7 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
     @Override
     public Object visitPrintln(GramaticaParser.PrintlnContext ctx) {
         Object valor = visit(ctx.expression()); // Resolvemos la matemática
-        System.out.println("Resultado: " + valor); // ¡Lo mostramos!
+        System.out.println(valor); // ¡Lo mostramos!
         return null;
     }
 

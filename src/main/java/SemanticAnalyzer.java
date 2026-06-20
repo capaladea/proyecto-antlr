@@ -180,6 +180,7 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
                 } else {
                     tipoIzquierdo = "INT";
                 }
+
             }
         }
         return tipoIzquierdo;

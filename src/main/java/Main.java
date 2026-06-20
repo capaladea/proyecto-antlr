@@ -38,7 +38,7 @@ public class Main {
                 System.out.println("--- ¡Análisis semántico exitoso! ---");
 
                 // Fase de Ejecución (el interprete)
-                System.out.println("--- Iniciando Ejecución ---");
+                System.out.println("--- Iniciando Ejecución ---\n");
                 Interpreter interpreter = new Interpreter();
                 interpreter.visit(tree);
 
