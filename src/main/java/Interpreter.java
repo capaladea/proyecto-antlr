@@ -29,19 +29,21 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
 
     @Override
     public Object visitExpression(GramaticaParser.ExpressionContext ctx) {
-        // 1. Obtenemos el valor real del primer componente
+        // Metodo puente: simplemente delega en orExpr
+        return visit(ctx.orExpr());
+    }
+
+    @Override
+    public Object visitOrExpr(GramaticaParser.OrExprContext ctx) {
+        // Acá se muda la ejecución real del OR (||)
         Object resultado = visit(ctx.andExpr(0));
 
-        // 2. Si hay operadores "||", los evaluamos iterativamente
         if (ctx.andExpr().size() > 1) {
             for (int i = 1; i < ctx.andExpr().size(); i++) {
                 Object operandoDerecho = visit(ctx.andExpr(i));
-
-                // Operación lógica OR real de Java
                 resultado = (Boolean) resultado || (Boolean) operandoDerecho;
             }
         }
-
         return resultado;
     }
 

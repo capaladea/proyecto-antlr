@@ -28,7 +28,9 @@ doWhile: DO BRACKET_OPEN
 varDecl: VAR ID SEMICOLON;
 varAssign: ID ASSIGN expression SEMICOLON;
 
-expression: andExpr
+expression: orExpr;
+
+orExpr: andExpr
             ( OR andExpr )*;
 
 andExpr: comparisonExpr

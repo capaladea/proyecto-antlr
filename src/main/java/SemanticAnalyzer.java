@@ -30,24 +30,25 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
 
     @Override
     public String visitExpression(GramaticaParser.ExpressionContext ctx) {
-        // 1. Evaluamos el tipo del primer hijo (el bloque de los ANDs)
+        // Metodo puente: simplemente delega en orExpr
+        return visit(ctx.orExpr());
+    }
+
+    @Override
+    public String visitOrExpr(GramaticaParser.OrExprContext ctx) {
+        // Acá se muda la lógica real del OR (||)
         String tipoIzquierdo = visit(ctx.andExpr(0));
 
-        // 2. Si hay más de un hijo andExpr, significa que se usó el operador "||"
         if (ctx.andExpr().size() > 1) {
             for (int i = 1; i < ctx.andExpr().size(); i++) {
                 String tipoDerecho = visit(ctx.andExpr(i));
 
-                // Validación estricta: ambos lados deben ser BOOLEAN
                 if (!"BOOLEAN".equals(tipoIzquierdo) || !"BOOLEAN".equals(tipoDerecho)) {
                     throw new RuntimeException("Error Semántico: El operador lógico '||' solo se puede aplicar a expresiones booleanas.");
                 }
             }
-            // Si pasa la auditoría, el resultado final que sube es BOOLEAN
             return "BOOLEAN";
         }
-
-        // Si no había operador ||, sube el tipo original intacto (INT, FLOAT, etc.)
         return tipoIzquierdo;
     }
 
