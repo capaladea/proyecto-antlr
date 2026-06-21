@@ -27,6 +27,13 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         if (ctx.varAssign() != null) {
             return visit(ctx.varAssign());
         }
+        if (ctx.conditional() != null) {
+            return visit(ctx.conditional());
+        }
+
+        if (ctx.doWhile() != null) {
+            return visit(ctx.doWhile());
+        }
         return null;
     }
 
@@ -278,6 +285,50 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
             // Evaluamos recursivamente el tipo de la expresión interna
             return visit(ctx.expression());
         }
+        return null;
+    }
+    @Override
+    public String visitBlock(GramaticaParser.BlockContext ctx) {
+        for (GramaticaParser.SentenceContext sentenceCtx : ctx.sentence()) {
+            visit(sentenceCtx);
+        }
+
+        return null;
+    }
+
+    @Override
+    public String visitConditional(GramaticaParser.ConditionalContext ctx) {
+
+        String tipoCondicion = visit(ctx.expression());
+
+        if (!"BOOLEAN".equals(tipoCondicion)) {
+            throw new RuntimeException(
+                    "Error Semántico: La condición del if debe ser BOOLEAN y se encontró "
+                            + tipoCondicion
+            );
+        }
+
+        visit(ctx.ifBlock);
+        visit(ctx.elseBlock);
+
+        return null;
+    }
+
+    @Override
+    public String visitDoWhile(GramaticaParser.DoWhileContext ctx) {
+
+        for (GramaticaParser.SentenceContext s : ctx.sentence()) {
+            visit(s);
+        }
+
+        String tipo = visit(ctx.expression());
+
+        if (!"BOOLEAN".equals(tipo)) {
+            throw new RuntimeException(
+                    "Error semántico: la condición del do-while debe ser BOOLEAN"
+            );
+        }
+
         return null;
     }
 }

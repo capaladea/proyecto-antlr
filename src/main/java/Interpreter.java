@@ -26,6 +26,13 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         if (ctx.varAssign() != null) {
             return visit(ctx.varAssign());
         }
+        if (ctx.conditional() != null) {
+            return visit(ctx.conditional());
+        }
+
+        if (ctx.doWhile() != null) {
+            return visit(ctx.doWhile());
+        }
         return null;
     }
 
@@ -300,6 +307,38 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         if (ctx.expression() != null) {
             return visit(ctx.expression());
         }
+
+        return null;
+    }
+
+    @Override
+    public Object visitBlock(GramaticaParser.BlockContext ctx) {
+        for (GramaticaParser.SentenceContext sentenceCtx : ctx.sentence()) {
+            visit(sentenceCtx);
+        }
+        return null;
+    }
+
+    @Override
+    public Object visitConditional(GramaticaParser.ConditionalContext ctx) {
+        Boolean condition = (Boolean) visit(ctx.expression());
+
+        if (condition) {
+            visit(ctx.ifBlock);
+        } else {
+            visit(ctx.elseBlock);
+        }
+
+        return null;
+    }
+    @Override
+    public Object visitDoWhile(GramaticaParser.DoWhileContext ctx) {
+
+        do {
+            for (GramaticaParser.SentenceContext s : ctx.sentence()) {
+                visit(s);
+            }
+        } while ((Boolean) visit(ctx.expression()));
 
         return null;
     }

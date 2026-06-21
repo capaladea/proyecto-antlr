@@ -13,18 +13,16 @@ sentence: println
 
 println: PRINTLN expression SEMICOLON;
 
-conditional: IF PAR_OPEN expression PAR_CLOSE   BRACKET_OPEN
-                sentence*
-            BRACKET_CLOSE
-            ELSE BRACKET_OPEN
-                sentence*
-            BRACKET_CLOSE;
+conditional: IF PAR_OPEN expression PAR_CLOSE ifBlock=block
+             ELSE elseBlock=block;
+
+block: BRACKET_OPEN sentence* BRACKET_CLOSE;
 
 //*******************************
 doWhile: DO BRACKET_OPEN
             sentence*
-            BRACKET_CLOSE
-            WHILE PAR_OPEN expression PAR_CLOSE SEMICOLON;
+         BRACKET_CLOSE
+         WHILE PAR_OPEN expression PAR_CLOSE SEMICOLON;
 //*******************************
 
 varDecl: VAR ID SEMICOLON;
