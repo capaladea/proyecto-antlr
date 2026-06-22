@@ -1,34 +1,14 @@
 program TestAsignacion {
-    var x;
-    var condicion;
+    // Uso del do-while
 
-    x = 5 + 5 * 2;
-    condicion = x > 10 && true;
-// comentarios
-    println (x + 100);
-    println ("condicion");
+    var acumulador;
+    acumulador = 0;
 
-        var L;
-        L = 10;
+    println ("imprime los numeros pares menores a 10");
 
-        if (L > 5) {
-            var a;
-            a = 10; println (a);
-            println "Es mayor";
-        } else {
-            println "Es menor";
-        }
-
-
-            var M;
-            M = 0;
-
-            do {
-                println M;
-                M = M + 1;
-            } while (M < 5);
-
-
-
+    do {
+        println (acumulador);
+        acumulador = acumulador + 2;
+    } while (acumulador < 10);
 
 }
