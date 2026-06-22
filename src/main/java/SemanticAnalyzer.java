@@ -27,10 +27,12 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         if (ctx.varAssign() != null) {
             return visit(ctx.varAssign());
         }
+        // Si es un if-else lo visitamos
         if (ctx.conditional() != null) {
             return visit(ctx.conditional());
         }
 
+        // Si es un do-while lo visitamos
         if (ctx.doWhile() != null) {
             return visit(ctx.doWhile());
         }

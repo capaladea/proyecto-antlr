@@ -4,7 +4,7 @@ program TestAsignacion {
 
     x = 5 + 5 * 2;
     condicion = x > 10 && true;
-
+// comentarios
     println (x + 100);
     println ("condicion");
 
@@ -12,6 +12,8 @@ program TestAsignacion {
         L = 10;
 
         if (L > 5) {
+            var a;
+            a = 10; println (a);
             println "Es mayor";
         } else {
             println "Es menor";

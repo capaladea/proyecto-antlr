@@ -13,8 +13,10 @@ sentence: println
 
 println: PRINTLN expression SEMICOLON;
 
-conditional: IF PAR_OPEN expression PAR_CLOSE ifBlock=block
-             ELSE elseBlock=block;
+conditional: IF PAR_OPEN expression PAR_CLOSE
+                ifBlock=block
+             ELSE
+                elseBlock=block;
 
 block: BRACKET_OPEN sentence* BRACKET_CLOSE;
 
@@ -104,5 +106,8 @@ ID: [a-zA-Z][a-zA-Z0-9_]*;
 INT: [0-9]+;
 FLOAT: [0-9]+ '.' [0-9]* | '.' [0-9]+;
 STRING: '"' (~["\\\r\n'] | '\\' .)* '"';
+
+LINE_COMMENT: '//' ~[\r\n]* -> skip;
+BLOCK_COMMENT: '/*' .*? '*/' -> skip;
 
 WS: [ \t\r\n]+ -> skip;
