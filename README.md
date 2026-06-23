@@ -71,6 +71,7 @@ Esta definido como un proyecto de tipo MAVEN.
 
 Se utilizo la linea de compilacion **maven clean compile** (usando Intellij IDEA).
 
+Nota: al compilar ANTLR genera de forma automatica las clases donde se definen los metodos a sobrecargar. Esta carpeta se encuentra, en nuestro proyecto, dentro de target/generated-souced/antlr, la cual se debe marcar para que el compilador sepa donde buscarlas.
 
 ##Ejemplos de uso
 
