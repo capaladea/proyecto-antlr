@@ -128,7 +128,7 @@ program testComparacion{
 
 program testIfElse{
 
-    // el if no valida una condicion booleana
+    // el if no puede validar una condicion no booleana
 
     var L;
     L = 10;
