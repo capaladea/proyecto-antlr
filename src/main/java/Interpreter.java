@@ -1,9 +1,10 @@
 
 public class Interpreter extends GramaticaBaseVisitor<Object>{
 
-    // tabla para guardar las variables y su valor
+    // Tabla para guardar las variables y su valor
     private final SymbolTable memoria = new SymbolTable();
 
+    // Ejecuta el programa
     @Override
     public Object visitProgram(GramaticaParser.ProgramContext ctx) {
         // Le decimos al intérprete que ejecute todas las sentencias dentro de las llaves
@@ -13,6 +14,7 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         return null;
     }
 
+    // Ejecuta las sentencias
     @Override
     public Object visitSentence(GramaticaParser.SentenceContext ctx) {
         if (ctx.println() != null) {
@@ -36,13 +38,15 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         return null;
     }
 
+    // Ejecuta el println
     @Override
     public Object visitPrintln(GramaticaParser.PrintlnContext ctx) {
-        Object valor = visit(ctx.expression()); // Resolvemos la matemática
-        System.out.println(valor); // ¡Lo mostramos!
+        Object valor = visit(ctx.expression()); // rsuelve la expression
+        System.out.println(valor); // Se muestra en consola
         return null;
     }
 
+    // Ejecuta la declaracion de un variable 
     @Override
     public Object visitVarDecl(GramaticaParser.VarDeclContext ctx) {
         String nombreVar = ctx.ID().getText();
@@ -53,6 +57,7 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         return null;
     }
 
+    // Ejecuta la asignacion de una variable
     @Override
     public Object visitVarAssign(GramaticaParser.VarAssignContext ctx) {
         String nombreVar = ctx.ID().getText();
@@ -67,15 +72,17 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         return null;
     }
 
+    // Ejecuta expression
     @Override
     public Object visitExpression(GramaticaParser.ExpressionContext ctx) {
         // Metodo puente: simplemente delega en orExpr
         return visit(ctx.orExpr());
     }
 
+    // Ejecuta un or
     @Override
     public Object visitOrExpr(GramaticaParser.OrExprContext ctx) {
-        // Acá se muda la ejecución real del OR (||)
+        // ejecución del OR (||)
         Object resultado = visit(ctx.andExpr(0));
 
         if (ctx.andExpr().size() > 1) {
@@ -87,17 +94,18 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         return resultado;
     }
 
+    // Ejecuta un and
     @Override
     public Object visitAndExpr(GramaticaParser.AndExprContext ctx) {
-        // 1. Obtenemos el valor real del primer componente
+        // Obtenemos el valor real del primer componente
         Object resultado = visit(ctx.comparisonExpr(0));
 
-        // 2. Si hay operadores "&&", evaluamos iterativamente
+        // Si hay operadores "&&", evaluamos iterativamente
         if (ctx.comparisonExpr().size() > 1) {
             for (int i = 1; i < ctx.comparisonExpr().size(); i++) {
                 Object operandoDerecho = visit(ctx.comparisonExpr(i));
 
-                // Operación lógica AND real de Java
+                // Operación lógica AND real
                 resultado = (Boolean) resultado && (Boolean) operandoDerecho;
             }
         }
@@ -105,6 +113,7 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         return resultado;
     }
 
+    // Ejecuta una comparacion de las definidas
     @Override
     public Object visitComparisonExpr(GramaticaParser.ComparisonExprContext ctx) {
         Object resultado = visit(ctx.arithmeticExpr(0));
@@ -168,12 +177,13 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         return resultado;
     }
 
+    // Ejecuta una suma o resta
     @Override
     public Object visitArithmeticExpr(GramaticaParser.ArithmeticExprContext ctx) {
-        // 1. Obtenemos el valor real del primer término
+        // Obtenemos el valor real del primer término
         Object resultado = visit(ctx.multiplicativeExpr(0));
 
-        // 2. Si hay más términos, iteramos sobre ellos
+        // Si hay más términos, iteramos sobre ellos
         if (ctx.multiplicativeExpr().size() > 1) {
             for (int i = 1; i < ctx.multiplicativeExpr().size(); i++) {
                 Object operandoDerecho = visit(ctx.multiplicativeExpr(i));
@@ -207,12 +217,13 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         return resultado;
     }
 
+    // Ejecuta una multiplicacion o division
     @Override
     public Object visitMultiplicativeExpr(GramaticaParser.MultiplicativeExprContext ctx) {
-        // 1. Obtenemos el valor del primer término
+        // Obtenemos el valor del primer término
         Object resultado = visit(ctx.unaryExpr(0));
 
-        // 2. Si hay más de un término, iteramos sobre los operadores y los siguientes operandos
+        // Si hay más de un término, iteramos sobre los operadores y los siguientes operandos
         if (ctx.unaryExpr().size() > 1) {
             for (int i = 1; i < ctx.unaryExpr().size(); i++) {
                 Object operandoDerecho = visit(ctx.unaryExpr(i));
@@ -250,6 +261,7 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         return resultado;
     }
 
+    // Ejecuta la negacion o los valores negativos
     @Override
     public Object visitUnaryExpr(GramaticaParser.UnaryExprContext ctx) {
         // Caso 1: Negación lógica con '!'
@@ -270,10 +282,11 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
             }
         }
 
-        // Caso base: Si no hay operador unario, resolvemos el 'term' [cite: 12]
+        // Caso base: Si no hay operador unario, resolvemos el 'term'
         return visit(ctx.term());
     }
 
+    // Ejecuta un termino
     @Override
     public Object visitTerm(GramaticaParser.TermContext ctx) {
         // Retornar el valor entero como Integer de Java
@@ -311,6 +324,7 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         return null;
     }
 
+    // Ejecuta un bloque de sentencias
     @Override
     public Object visitBlock(GramaticaParser.BlockContext ctx) {
         for (GramaticaParser.SentenceContext sentenceCtx : ctx.sentence()) {
@@ -319,6 +333,7 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
         return null;
     }
 
+    // Ejecuta un if-else
     @Override
     public Object visitConditional(GramaticaParser.ConditionalContext ctx) {
         Boolean condition = (Boolean) visit(ctx.expression());
@@ -331,6 +346,8 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
 
         return null;
     }
+
+    // Ejecuta un do-while
     @Override
     public Object visitDoWhile(GramaticaParser.DoWhileContext ctx) {
 
@@ -342,6 +359,5 @@ public class Interpreter extends GramaticaBaseVisitor<Object>{
 
         return null;
     }
-
 
 }
