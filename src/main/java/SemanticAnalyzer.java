@@ -1,9 +1,9 @@
 
-
 public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
 
     private final SymbolTable tablaSimbolos = new SymbolTable();
 
+    // regla program
     @Override
     public String visitProgram(GramaticaParser.ProgramContext ctx) {
         // Le decimos al analizador que recorra todas las sentencias dentro de las llaves
@@ -13,6 +13,7 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         return null;
     }
 
+    // regla sentence y sus variantes
     @Override
     public String visitSentence(GramaticaParser.SentenceContext ctx) {
         // Si la sentencia es un println, la visitamos
@@ -39,12 +40,14 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         return null;
     }
 
+    // regla println
     @Override
     public String visitPrintln(GramaticaParser.PrintlnContext ctx) {
         visit(ctx.expression()); // Validamos la expresión matemática de adentro
         return null;
     }
 
+    // declaracion de variables
     @Override
     public String visitVarDecl(GramaticaParser.VarDeclContext ctx) {
         String nombreVar = ctx.ID().getText();
@@ -56,6 +59,7 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         return null;
     }
 
+    // asignacion de variables
     @Override
     public String visitVarAssign(GramaticaParser.VarAssignContext ctx) {
         String nombreVar = ctx.ID().getText();
@@ -84,12 +88,14 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         return null; // Es una acción, no devuelve tipo hacia arriba
     }
 
+    // Regla expression. Comienzo de la jerarquia de reglas
     @Override
     public String visitExpression(GramaticaParser.ExpressionContext ctx) {
         // Metodo puente: simplemente delega en orExpr
         return visit(ctx.orExpr());
     }
 
+    // Regla or
     @Override
     public String visitOrExpr(GramaticaParser.OrExprContext ctx) {
         // Acá se muda la lógica real del OR (||)
@@ -108,6 +114,7 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         return tipoIzquierdo;
     }
 
+    //Regla and
     @Override
     public String visitAndExpr(GramaticaParser.AndExprContext ctx) {
         // 1. Evaluamos el tipo del primer hijo (izquierdo)
@@ -130,6 +137,8 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         // Si no había operador &&, sube el tipo original (que podría ser INT, FLOAT, etc.)
         return tipoIzquierdo;
     }
+
+    // Regla del == 
     @Override
     public String visitComparisonExpr(GramaticaParser.ComparisonExprContext ctx) {
         // 1. Evaluamos el tipo del lado izquierdo
@@ -167,6 +176,7 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         return tipoIzquierdo;
     }
 
+    // Regla para la + y -
     @Override
     public String visitArithmeticExpr(GramaticaParser.ArithmeticExprContext ctx) {
         // 1. Empezamos evaluando el tipo del primer hijo (el de la izquierda)
@@ -195,6 +205,7 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         return tipoIzquierdo;
     }
 
+    // Regla para la * y /
     @Override
     public String visitMultiplicativeExpr(GramaticaParser.MultiplicativeExprContext ctx) {
         // 1. Empezamos evaluando el tipo del primer hijo (el de la izquierda)
@@ -225,6 +236,7 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         return tipoIzquierdo;
     }
 
+    // Regla para el operador unario
     @Override
     public String visitUnaryExpr(GramaticaParser.UnaryExprContext ctx) {
         // Caso 1: Negación lógica con '!'
@@ -252,6 +264,7 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         return visit(ctx.term());
     }
 
+    // Regla para los terminos 
     @Override
     public String visitTerm(GramaticaParser.TermContext ctx) {
         // Si es un número entero
@@ -289,15 +302,17 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         }
         return null;
     }
+
+    // Regla que evalua un bloque de sentencias
     @Override
     public String visitBlock(GramaticaParser.BlockContext ctx) {
         for (GramaticaParser.SentenceContext sentenceCtx : ctx.sentence()) {
             visit(sentenceCtx);
         }
-
         return null;
     }
 
+    // Regla para if-else
     @Override
     public String visitConditional(GramaticaParser.ConditionalContext ctx) {
 
@@ -316,6 +331,7 @@ public class SemanticAnalyzer extends GramaticaBaseVisitor<String>{
         return null;
     }
 
+    // Regla del do-while
     @Override
     public String visitDoWhile(GramaticaParser.DoWhileContext ctx) {
 
